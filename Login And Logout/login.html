@@ -1,0 +1,88 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+	<title>CNXSolution WiFi Hotspot</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="pragma" content="no-cache" />
+	<meta http-equiv="expires" content="-1" />
+	<style type="text/css">
+	body {color: #737373; font-size: 10px; font-family: verdana;}
+
+	textarea,input,select {
+	background-color: #FDFBFB;
+	border: 1px solid #BBBBBB;
+	padding: 2px;
+	margin: 1px;
+	font-size: 14px;
+	color: #808080;
+	}
+
+	a, a:link, a:visited, a:active { color: #AAAAAA; text-decoration: none; font-size: 10px; }
+	a:hover { border-bottom: 1px dotted #c1c1c1; color: #AAAAAA; }
+	img {border: none;}
+	td { font-size: 14px; color: #7A7A7A; }
+	</style>
+
+	<script type="text/javascript">
+		document.login.username.focus();
+	</script>
+
+</head>
+
+<body style="margin: auto;">
+	$(if chap-id)
+		<form name="sendin" action="$(link-login-only)" method="post">
+			<input type="hidden" name="username" />
+			<input type="hidden" name="password" />
+			<input type="hidden" name="dst" value="$(link-orig)" />
+			<input type="hidden" name="popup" value="true" />
+		</form>
+		
+		<script type="text/javascript" src="/md5.js"></script>
+		<script type="text/javascript">
+		<!--
+			function doLogin() {
+			document.sendin.username.value = document.login.username.value;
+			document.sendin.password.value = hexMD5('$(chap-id)' + document.login.password.value + '$(chap-challenge)');
+			document.sendin.submit();
+			return false;
+			}
+		//-->
+		</script>
+	$(endif)
+	<div style="width: 750px; margin: auto; margin-top: 50px;">
+		<div style="width: 750px; height: 560px; background-image:url('./img/home-screen.png'); padding: 20px; border-radius:25px;" />
+		<div>
+			<form name="login" action="$(link-login-only)" method="post"
+				$(if chap-id) onSubmit="return doLogin()" $(endif)>
+				<input type="hidden" name="dst" value="$(link-orig)" />
+				<input type="hidden" name="popup" value="true" />
+				<table width="200px" border="0">
+					<tr>
+						<td width="100%">
+						</td>
+						<td>
+							<input style="width: 200px; font-size: 24px; margin-left: 510px; margin-top: 57px; border-radius: 10px;" name="username" type="text" value="$(username)" />
+						</td>
+					</tr>
+					<tr>
+						<td>
+						</td>
+						<td>
+							<input style="width: 200px; font-size: 24px; margin-left: 510px; margin-top: 45px; border-radius: 10px;" name="password" type="password"/>
+						</td>
+					</tr>
+					<tr>
+						<td></td>
+						<td>
+							<input type="submit" style="width: 100px; font-size: 24px; border-radius: 10px;; color: #FFFFFF; background-color; margin-top: 15px; #aba000; margin-left: 600px;" value="Login" style="width: 30px" />
+						</td>
+					</tr>
+				</table>
+			</form>
+		</div>
+	</div>
+
+</body>
+</html>
