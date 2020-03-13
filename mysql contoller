@@ -1,0 +1,154 @@
+import mysql.connector
+from datetime import datetime
+from mysql.connector import Error
+
+class mysql_controller:
+    def __init__(self,hostname,user,password,dbname):
+        #print('init mysql')
+        try:
+            self.hostname = hostname
+            self.user = user
+            self.password = password
+            self.dbname = dbname
+            
+            self.conn = mysql.connector.connect(
+                host = hostname,
+                database = dbname,
+                user = user,
+                password = password)
+            if self.conn.is_connected():
+                print('Connected to MySQL database')
+        except Error as e:
+            print(e)
+        finally:
+            #print('finally')
+            if self.conn is not None and self.conn.is_connected():
+                self.conn.close()
+    def connect(self):
+        try:
+            #print("->>>>>",self.conn.is_connected())
+            if not self.conn.is_connected():
+                self.conn = mysql.connector.connect(
+                    host = self.hostname,
+                    database = self.dbname,
+                    user = self.user,
+                    password = self.password)
+                if self.conn.is_connected():
+                    print('Connected to MySQL database')
+                    return True
+            else:
+                return True
+        except Error as e:
+            print(e)
+            return False
+        
+    def disconnect(self):
+        try:
+            self.conn.close()
+            return True
+        except Error as e:
+            print(e)
+            return False
+            
+    def addIdentity(self,identity):
+        try:
+            self.connect()
+            print("Add Identity Card To DB")
+            sql = '''INSERT INTO identity_card (
+                ID,Fullname_Thai,Fullname_Eng,Birthday,Address,StartEndDate,Aumpher,ID_Pic
+                )
+                VALUES (%s,%s,%s,%s,%s,%s,%s,%s)
+            '''
+            value = (identity[0],identity[2],identity[3],identity[4],identity[5],identity[6],identity[7],identity[8])
+
+            mycursor = self.conn.cursor()
+            mycursor.execute(sql,value)
+            
+            self.conn.commit()
+            rowcount = mycursor.rowcount
+            self.disconnect()
+            
+            return (rowcount, "record inserted")
+        except Error as e:
+            return e
+        
+    def queryUserBeforeCurrentDate(self):
+        try:
+            self.connect()
+            print(self.conn.is_connected())
+            datetime1 = datetime.now().strftime('%Y-%m-%d')#('%Y-%m-%d %H:%M:%S')
+            sql = "SELECT * FROM user_pass_mikrotik WHERE CreateDateTime <= '"+str(datetime1)+"' AND Active = '1'"
+            #print(sql)
+            mycursor = self.conn.cursor()
+            mycursor.execute(sql)
+            myresult = mycursor.fetchall()
+            self.disconnect()
+            return myresult
+        except Error as e:
+            return e
+            
+    def unActiveUser(self,idCoupon):
+        try:
+            datetime1 = datetime.now()
+            key = ''
+            for item in idCoupon:
+                if (key != '') :
+                    key = key + ", " + str(item[0])
+                else:
+                    key = str(item[0])
+            self.connect()
+            sql = "UPDATE user_pass_mikrotik SET Active = '0', DeleteDateTime = '"+ str(datetime1) + "' WHERE ID IN ("+ key + ")"
+            #print(sql)
+            mycursor = self.conn.cursor()
+            mycursor.execute(sql)
+            
+            self.conn.commit()
+            rowcount = mycursor.rowcount
+            self.disconnect()
+            return (rowcount, "unActive User")
+        
+        except Error as e:
+            return e
+        
+    def recordCoupon(self,identityNo,coupon):
+        try:
+            datetime1 = datetime.now()
+            print("recordCouponToDB")
+            #sql = """INSERT INTO user_pass_mikrotik
+                #(Identity_card_No, User, Pass, User_Profile, Active, CreateDateTime)
+                #VALUES
+                #("""+"'"+identityNo+"','"+coupon[0]+"','"+coupon[1]+"',"+"'forPython',"+"'1'"+",'"+str(datetime1)+"')"
+            self.connect()
+            sql = """INSERT INTO user_pass_mikrotik
+                (Identity_card_No, User, Pass, User_Profile, Active, CreateDateTime)
+                VALUES
+                (%s,%s,%s,%s,%s,%s)""" 
+            #print(sql)
+            #print(datetime1)
+            value = (identityNo,coupon[0],coupon[1],'forPython','1',str(datetime1))
+            
+            mycursor = self.conn.cursor()
+            mycursor.execute(sql,value)
+            
+            self.conn.commit()
+            rowcount = mycursor.rowcount
+            self.disconnect()
+            return (rowcount, "record coupon")
+        except Error as e:
+            return e
+        
+    def findIdentity(self,ID):
+        try:
+            self.connect()
+            print("Find Identity Card In DB")
+            sql = "SELECT * FROM identity_card WHERE ID = '"+ID+"'"
+            
+            mycursor = self.conn.cursor()
+            mycursor.execute(sql)
+            myresult = mycursor.fetchall()
+            self.disconnect()
+            return myresult
+        
+        except Error as e:
+            return e
+        
